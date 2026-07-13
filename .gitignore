@@ -24,3 +24,7 @@ bumblebee-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Qwen3-VL local verification artifacts (large weight bundle + scratch probe, derivable from HF weights).
+/test/fixtures/qwen3_vl/vision_probe.safetensors
+/scratch_vision_probe.exs
