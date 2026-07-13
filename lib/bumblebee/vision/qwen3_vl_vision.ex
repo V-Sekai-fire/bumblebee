@@ -53,7 +53,6 @@ defmodule Bumblebee.Vision.Qwen3VLVision do
   @behaviour Bumblebee.Configurable
 
   import Bumblebee.Utils.Model, only: [join: 2]
-  import Nx.Defn
 
   alias Bumblebee.Layers
 
@@ -183,7 +182,7 @@ defmodule Bumblebee.Vision.Qwen3VLVision do
   end
 
   # Packed single-image full attention; matches the verified probe.
-  deftransformp qkv_attention(qkv, cos, sin, heads, hd) do
+  defp qkv_attention(qkv, cos, sin, heads, hd) do
     n = Nx.axis_size(qkv, 0)
     qkv = Nx.reshape(qkv, {n, 3, heads, hd})
     q = qkv[[.., 0]] |> rope(cos, sin, hd)
@@ -193,14 +192,14 @@ defmodule Bumblebee.Vision.Qwen3VLVision do
     q = Nx.transpose(q, axes: [1, 0, 2])
     k = Nx.transpose(k, axes: [1, 0, 2])
     v = Nx.transpose(v, axes: [1, 0, 2])
-    scores = Nx.multiply(Nx.dot(q, [2], [0], k, [2], [0]), 1.0 / Nx.sqrt(hd))
+    scores = Nx.multiply(Nx.dot(q, [2], [0], k, [2], [0]), 1.0 / :math.sqrt(hd))
     attn = Axon.Activations.softmax(scores, axis: -1)
     out = Nx.dot(attn, [2], [0], v, [1], [0])
     out |> Nx.transpose(axes: [1, 0, 2]) |> Nx.reshape({n, heads * hd})
   end
 
   # rope over {n, heads, hd} with cos/sin {n, hd}
-  deftransformp rope(x, cos, sin, hd) do
+  defp rope(x, cos, sin, hd) do
     cos = Nx.new_axis(cos, 1)
     sin = Nx.new_axis(sin, 1)
     half = div(hd, 2)
