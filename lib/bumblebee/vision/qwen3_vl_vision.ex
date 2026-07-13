@@ -83,7 +83,7 @@ defmodule Bumblebee.Vision.Qwen3VLVision do
 
     Layers.output(%{
       pooled_state: outputs.pooled_state,
-      deepstack_features: outputs.deepstack_features
+      deepstack_features: Axon.container(outputs.deepstack_features)
     })
   end
 
